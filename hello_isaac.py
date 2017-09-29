@@ -11,6 +11,9 @@ import zipfile
 import text_to_speech
 
 
+LEFT_BUTTON, RIGHT_BUTTON = 1, 3
+
+
 def extract_symbols_if_necessary():
     if glob.glob('symbols/*.svg'):
         return
@@ -49,12 +52,50 @@ class AacWindow(Gtk.Window):
 
         symbol = Gtk.Button()
         symbol.add(image)
-        symbol.label = os.path.splitext(os.path.basename(file))[0]
-        symbol.connect('clicked', self.on_symbol_clicked)
+        symbol.default_label = os.path.splitext(os.path.basename(file))[0]
+        symbol.label = symbol.default_label
+        symbol.connect('button-press-event', self.on_symbol_clicked)
+
         return symbol
 
-    def on_symbol_clicked(self, symbol):
-        text_to_speech.say(symbol.label)
+    def on_symbol_clicked(self, symbol, event):
+        if event.button == LEFT_BUTTON:
+            text_to_speech.say(symbol.label)
+        elif event.button == RIGHT_BUTTON:
+            SymbolEditorDialog(self, symbol)
+
+
+class SymbolEditorDialog(Gtk.Dialog):
+
+    def __init__(self, parent, symbol):
+        self.symbol = symbol
+        super().__init__('Edit symbol', parent, True)
+        self.set_border_width(10)
+
+        # Remove the default box container and replace it with a grid.
+        self.remove(self.get_content_area())
+        grid = Gtk.Grid()
+        self.add(grid)
+
+        self.entry = Gtk.Entry(text=symbol.label)
+        grid.attach(self.entry, 0, 0, 2, 1)
+
+        save_button = Gtk.Button('Save')
+        save_button.connect('clicked', self.on_save_button_clicked)
+        grid.attach_next_to(save_button, self.entry, Gtk.PositionType.BOTTOM, 1, 1)
+
+        reset_button = Gtk.Button('Reset')
+        reset_button.connect('clicked', self.on_reset_button_clicked)
+        grid.attach_next_to(reset_button, save_button, Gtk.PositionType.RIGHT, 1, 1)
+
+        self.show_all()
+
+    def on_save_button_clicked(self, _):
+        self.symbol.label = self.entry.get_text()
+        self.destroy()
+
+    def on_reset_button_clicked(self, _):
+        self.entry.set_text(self.symbol.default_label)
 
 
 if __name__ == '__main__':
