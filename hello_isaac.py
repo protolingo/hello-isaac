@@ -6,8 +6,9 @@ from gi.repository import Gtk, GdkPixbuf
 
 import glob
 import os
-import subprocess
 import zipfile
+
+import text_to_speech
 
 
 def extract_symbols_if_necessary():
@@ -53,7 +54,7 @@ class AacWindow(Gtk.Window):
         return symbol
 
     def on_symbol_clicked(self, symbol):
-        subprocess.Popen(["espeak", symbol.label]).wait()
+        text_to_speech.say(symbol.label)
 
 
 if __name__ == '__main__':
