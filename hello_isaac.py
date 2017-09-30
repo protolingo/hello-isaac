@@ -10,6 +10,8 @@ import zipfile
 
 import text_to_speech
 
+from labels import labels
+
 
 LEFT_BUTTON, RIGHT_BUTTON = 1, 3
 
@@ -53,7 +55,7 @@ class AacWindow(Gtk.Window):
         symbol = Gtk.Button()
         symbol.add(image)
         symbol.default_label = os.path.splitext(os.path.basename(file))[0]
-        symbol.label = symbol.default_label
+        symbol.label = labels[symbol.default_label]
         symbol.connect('button-press-event', self.on_symbol_clicked)
 
         return symbol
@@ -88,7 +90,7 @@ class SymbolEditorDialog(Gtk.Dialog):
     def on_response(self, _, response):
         if response == self.SAVE:
             self.symbol.label = self.entry.get_text()
-            labelman[self.symbol.default_label] = self.symbol.label
+            labels[self.symbol.default_label] = self.symbol.label
             self.destroy()
         elif response == self.RESET:
             self.entry.set_text(self.symbol.default_label)
