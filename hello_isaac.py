@@ -67,35 +67,31 @@ class AacWindow(Gtk.Window):
 
 class SymbolEditorDialog(Gtk.Dialog):
 
+    SAVE, RESET = 1, 2
+
     def __init__(self, parent, symbol):
         self.symbol = symbol
         super().__init__('Edit symbol', parent, True)
         self.set_border_width(10)
 
-        # Remove the default box container and replace it with a grid.
-        self.remove(self.get_content_area())
-        grid = Gtk.Grid()
-        self.add(grid)
+        self.entry = Gtk.Entry(text=symbol.label, activates_default=True)
+        box = self.get_content_area()
+        box.add(self.entry)
 
-        self.entry = Gtk.Entry(text=symbol.label)
-        grid.attach(self.entry, 0, 0, 2, 1)
-
-        save_button = Gtk.Button('Save')
-        save_button.connect('clicked', self.on_save_button_clicked)
-        grid.attach_next_to(save_button, self.entry, Gtk.PositionType.BOTTOM, 1, 1)
-
-        reset_button = Gtk.Button('Reset')
-        reset_button.connect('clicked', self.on_reset_button_clicked)
-        grid.attach_next_to(reset_button, save_button, Gtk.PositionType.RIGHT, 1, 1)
+        self.add_button('_Save', self.SAVE)
+        self.add_button('_Reset', self.RESET)
+        self.connect('response', self.on_response)
+        self.set_default_response(self.SAVE)
 
         self.show_all()
 
-    def on_save_button_clicked(self, _):
-        self.symbol.label = self.entry.get_text()
-        self.destroy()
-
-    def on_reset_button_clicked(self, _):
-        self.entry.set_text(self.symbol.default_label)
+    def on_response(self, _, response):
+        if response == self.SAVE:
+            self.symbol.label = self.entry.get_text()
+            labelman[self.symbol.default_label] = self.symbol.label
+            self.destroy()
+        elif response == self.RESET:
+            self.entry.set_text(self.symbol.default_label)
 
 
 if __name__ == '__main__':
