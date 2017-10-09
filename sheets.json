@@ -1,0 +1,10 @@
+{
+  "Food": [
+    "apple", "apricot", "almond", "artichoke", "avocado", "banana",
+    "berry", "blackberry", "cabbage", "cranberries", "doughnut", "pear"
+  ],
+  "Animals": [
+    "lion", "cat", "dog", "mouse", "piglet", "horse",
+    "bear", "snake", "wolf", "giraffe", "duck", "donkey"
+  ]
+}

@@ -28,13 +28,13 @@ def extract_symbols_if_necessary():
 
 class SymbolGrid(Gtk.FlowBox):
 
-    def __init__(self, parent):
+    def __init__(self, parent, symbols):
         self.parent = parent
         super().__init__()
         self.set_selection_mode(Gtk.SelectionMode.NONE)
 
         extract_symbols_if_necessary()
-        files = glob.glob('symbols/*.svg')[:24]
+        files = ('symbols/%s.svg' % symbol for symbol in symbols)
         for symbol in map(self.get_symbol, files):
             self.add(symbol)
 
