@@ -4,7 +4,6 @@ pgi.install_as_gi()
 # noinspection PyUnresolvedReferences
 from gi.repository import Gtk, GdkPixbuf
 
-import glob
 import os
 import zipfile
 
@@ -16,14 +15,11 @@ from labels import labels
 LEFT_BUTTON, RIGHT_BUTTON = 1, 3
 
 
-def extract_symbols_if_necessary():
-    if glob.glob('symbols/*.svg'):
-        return
-
-    print("Hold on, I'm extracting symbols...", end=' ')
+def extract_symbols_if_necessary(files):
+    already_extracted = os.listdir('symbols')
+    missing = [f for f in files if f not in already_extracted]
     with zipfile.ZipFile('symbols.zip') as archive:
-        archive.extractall('symbols')
-    print('Done!')
+        archive.extractall('symbols', missing)
 
 
 class SymbolGrid(Gtk.FlowBox):
@@ -33,12 +29,13 @@ class SymbolGrid(Gtk.FlowBox):
         super().__init__()
         self.set_selection_mode(Gtk.SelectionMode.NONE)
 
-        extract_symbols_if_necessary()
-        files = ('symbols/%s.svg' % symbol for symbol in symbols)
+        files = [symbol + '.svg' for symbol in symbols]
+        extract_symbols_if_necessary(files)
         for symbol in map(self.get_symbol, files):
             self.add(symbol)
 
     def get_symbol(self, file):
+        file = 'symbols/' + file
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(file, -1, 64, True)
         image = Gtk.Image.new_from_pixbuf(pixbuf)
 
