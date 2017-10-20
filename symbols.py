@@ -4,15 +4,33 @@ pgi.install_as_gi()
 # noinspection PyUnresolvedReferences
 from gi.repository import Gtk, GdkPixbuf
 
+import json
 import os
 import zipfile
 
 import text_to_speech
 
-from labels import labels
-
+LABELS_FILE = 'symbols/labels.json'
 
 LEFT_BUTTON, RIGHT_BUTTON = 1, 3
+
+
+class LabelManager:
+
+    def __init__(self):
+        with open(LABELS_FILE) as f:
+            self.labels = json.load(f)
+
+    def __getitem__(self, default_label):
+        return self.labels.get(default_label, default_label)
+
+    def __setitem__(self, default_label, label):
+        self.labels[default_label] = label
+        with open(LABELS_FILE, 'w') as f:
+            json.dump(self.labels, f, indent=4)
+
+
+labels = LabelManager()
 
 
 def extract_symbols_if_necessary(files):
